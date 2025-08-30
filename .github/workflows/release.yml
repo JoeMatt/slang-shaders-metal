@@ -1,0 +1,76 @@
+name: Release compiled shaders
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Ensure oeshaders is executable
+        run: chmod +x ./oeshaders
+
+      - name: Compile shaders
+        run: |
+          python3 compile_shaders.py ./slang-shaders ./compiled_shaders ./oeshaders
+
+      - name: Generate release notes
+        run: |
+          python3 - <<'PY'
+          import os
+          out_root = 'compiled_shaders'
+          success = []
+          for root, _, files in os.walk(out_root):
+              for name in files:
+                  if name.endswith('.oecompiledshader'):
+                      rel = os.path.relpath(os.path.join(root, name), out_root)
+                      # Map back to source preset name for readability
+                      success.append(rel[:-len('.oecompiledshader')] + '.slangp')
+          success.sort()
+
+          failed = []
+          fails_path = os.path.join(out_root, 'failed.txt')
+          if os.path.exists(fails_path):
+              with open(fails_path) as f:
+                  for line in f:
+                      line = line.strip()
+                      if line.startswith('FAILED: '):
+                          failed.append(line[len('FAILED: '):])
+          failed.sort()
+
+          def details(title, items):
+              if not items:
+                  return f"<details>\n<summary>{title} (0)</summary>\n\nNo items.\n\n</details>"
+              lines = "\n".join(f"- {i}" for i in items)
+              return f"<details>\n<summary>{title} ({len(items)})</summary>\n\n{lines}\n\n</details>"
+
+          with open('release_notes.md', 'w') as f:
+              f.write('# Shader Compilation Results\n\n')
+              f.write(details('Successful', success))
+              f.write('\n\n')
+              f.write(details('Failed (after retry with Metal 2.3)', failed))
+          PY
+
+      - name: Package compiled shaders
+        run: zip -r compiled_shaders.zip compiled_shaders
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Shaders ${{ github.ref_name }}
+          body_path: release_notes.md
+          files: |
+            compiled_shaders.zip
