@@ -1,6 +1,36 @@
 #!/usr/bin/env python3
 import concurrent.futures as cf, os, sys, subprocess, pathlib, multiprocessing
 
+
+def print_help():
+    print(
+        """
+Usage: compile_shaders.py SRC_DIR [OUT_DIR] [TOOL] [METAL] [JOBS] [--no-filter|--filter=off|--filter|--filter=on|--filter=auto] [--help|-h]
+
+Pre-compiles RetroArch slang shader presets (.slangp) into OpenEmu-compatible compiled shader bundles (.oecompiledshader) for Metal.
+
+Positional arguments:
+  SRC_DIR     Path to the 'slang-shaders' root containing .slangp files
+  OUT_DIR     Output directory for compiled shaders (default: ./compiled_shaders)
+  TOOL        Path to the 'oeshaders' CLI (default: 'oeshaders' in PATH). Pass '.' or './' to use default
+  METAL       Target Metal version string (default: 2.4). On failures, automatically retries with 2.3
+  JOBS        Number of parallel compile jobs (default: CPU count)
+
+Options:
+  --no-filter, --filter=off   Disable family filtering; include all shader families
+  --filter, --filter=on,
+  --filter=auto               Enable family filtering (default). Skips heavy/incompatible families for iOS/tvOS:
+                              motion-interpolation, stereoscopic-3d, hdr, gpu
+  --help, -h                  Show this help and exit
+
+Outputs and logs:
+  - Compiled shaders written under OUT_DIR mirroring source tree, with extension .oecompiledshader
+  - Per-file compile logs written under OUT_DIR/compile_logs/<relative>.log
+  - Failures summarized in OUT_DIR/failed.txt; retried with Metal 2.3 and remaining failures in failed.2.3.txt
+""".strip()
+    )
+
+
 def compile_one(args):
     f, src, out, tool, metal, logroot = args
     rel = os.path.relpath(f, src)
@@ -16,19 +46,29 @@ def compile_one(args):
         proc = subprocess.run([tool, "compile", f, dst_file, metal, "--disable-cache"], stdout=logf, stderr=subprocess.STDOUT)
         return (rel, proc.returncode == 0, log_path)
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: compile_shaders.py /path/to/slang-shaders [out] [tool] [metal] [jobs] [--no-filter|--filter=off]", file=sys.stderr); sys.exit(1)
-    src = os.path.abspath(sys.argv[1])
-    out = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.path.abspath("compiled_shaders")
-    tool = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] not in ('.', './') else "oeshaders"
-    metal = sys.argv[4] if len(sys.argv) > 4 else "2.4"
-    jobs = int(sys.argv[5]) if len(sys.argv) > 5 and not sys.argv[5].startswith("--") else multiprocessing.cpu_count()
 
-    # Parse extra flags (after positional args)
+def main():
+    # Help requested anywhere
+    if any(a in ("--help", "-h") for a in sys.argv[1:]):
+        print_help(); sys.exit(0)
+    if len(sys.argv) < 2:
+        print_help(); sys.exit(1)
+
+    src = os.path.abspath(sys.argv[1])
+
+    # Separate positional values and options appearing anywhere after SRC_DIR
+    args_after_src = sys.argv[2:]
+    pos = [a for a in args_after_src if not a.startswith("--")]
+    opts = [a for a in args_after_src if a.startswith("--")]
+
+    out = os.path.abspath(pos[0]) if len(pos) > 0 else os.path.abspath("compiled_shaders")
+    tool = pos[1] if len(pos) > 1 and pos[1] not in ('.', './') else "oeshaders"
+    metal = pos[2] if len(pos) > 2 else "2.4"
+    jobs = int(pos[3]) if len(pos) > 3 else multiprocessing.cpu_count()
+
+    # Parse flags
     filter_on = True
-    extra = [a for a in sys.argv[6:] if a.startswith("--")] if len(sys.argv) > 6 else []
-    for a in extra:
+    for a in opts:
         if a in ("--no-filter", "--filter=off"):
             filter_on = False
         elif a in ("--filter=on", "--filter", "--filter=auto"):
