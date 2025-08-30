@@ -17,9 +17,9 @@ Positional arguments:
   JOBS        Number of parallel compile jobs (default: CPU count)
 
 Options:
-  --no-filter, --filter=off   Disable family filtering; include all shader families
+  --no-filter, --filter=off   Disable family filtering; include all shader families (default)
   --filter, --filter=on,
-  --filter=auto               Enable family filtering (default). Skips heavy/incompatible families for iOS/tvOS:
+  --filter=auto               Enable family filtering (intended for mobile targets such as iOS/tvOS). Skips heavy/incompatible families:
                               motion-interpolation, stereoscopic-3d, hdr, gpu
   --help, -h                  Show this help and exit
 
@@ -66,8 +66,8 @@ def main():
     metal = pos[2] if len(pos) > 2 else "2.4"
     jobs = int(pos[3]) if len(pos) > 3 else multiprocessing.cpu_count()
 
-    # Parse flags
-    filter_on = True
+    # Parse flags (filter is OFF by default)
+    filter_on = False
     for a in opts:
         if a in ("--no-filter", "--filter=off"):
             filter_on = False
@@ -78,12 +78,12 @@ def main():
     os.makedirs(out, exist_ok=True); os.makedirs(logroot, exist_ok=True)
     fails_path = os.path.join(out, "failed.txt")
 
-    # Families known to be heavy/incompatible for iOS/tvOS; skip by default unless --no-filter
+    # Families known to be heavy/incompatible for mobile targets; skipped when filter is enabled
     exclude = {"motion-interpolation","stereoscopic-3d","hdr","gpu"} if filter_on else set()
 
     files = []
     for root, dirs, filenames in os.walk(src):
-        # prune excludes
+        # prune excludes when filter is enabled
         if exclude:
             dirs[:] = [d for d in dirs if d not in exclude]
         for name in filenames:

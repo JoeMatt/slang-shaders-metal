@@ -26,10 +26,10 @@ python3 compile_shaders.py SRC_DIR [OUT_DIR] [TOOL] [METAL] [JOBS] [--no-filter|
 
 ### Options
 
-- `--no-filter`, `--filter=off`
+- `--no-filter`, `--filter=off` (default)
   - Disables family filtering. Compiles all shader families.
-- `--filter`, `--filter=on`, `--filter=auto` (default)
-  - Enables family filtering suitable for iOS/tvOS. Skips heavy/incompatible families:
+- `--filter`, `--filter=on`, `--filter=auto`
+  - Enables family filtering intended for mobile targets (iOS/tvOS). Skips heavy/incompatible families:
     - `motion-interpolation`, `stereoscopic-3d`, `hdr`, `gpu`
 - `--help`, `-h`
   - Prints help and exits
@@ -43,7 +43,7 @@ python3 compile_shaders.py SRC_DIR [OUT_DIR] [TOOL] [METAL] [JOBS] [--no-filter|
 
 ## Examples
 
-- Default tool, defaults for output/Metal version, auto filter on:
+- Default tool, defaults for output/Metal version, no filtering (default):
 
 ```sh
 python3 compile_shaders.py ./slang-shaders
@@ -55,14 +55,14 @@ python3 compile_shaders.py ./slang-shaders
 python3 compile_shaders.py ./slang-shaders ./compiled_shaders ./oeshaders 2.4 8
 ```
 
-- Compile everything (no filtering):
+- Filter for mobile targets (iOS/tvOS):
 
 ```sh
-python3 compile_shaders.py ./slang-shaders ./compiled_shaders ./oeshaders 2.4 8 --no-filter
+python3 compile_shaders.py ./slang-shaders ./compiled_shaders ./oeshaders 2.4 8 --filter
 ```
 
 ## Notes
 
 - The included `OpenEmuShaders.framework` and `oeshaders` binary are provided for convenience. You can build them from the upstream project if preferred.
-- The script is optimized for iOS/tvOS targets by default via family filtering. Use `--no-filter` to include all shader families.
+- By default, all shader families are compiled. For mobile (iOS/tvOS) targets, enable filtering with `--filter` to skip heavy/incompatible families.
 - On failures, logs in `compile_logs` are the first place to inspect.
