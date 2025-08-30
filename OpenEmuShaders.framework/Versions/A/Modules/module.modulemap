@@ -1,0 +1,11 @@
+framework module OpenEmuShaders {
+  umbrella header "OpenEmuShaders.h"
+  export *
+
+  module * { export * }
+}
+
+module OpenEmuShaders.Swift {
+  header "OpenEmuShaders-Swift.h"
+  requires objc
+}
