@@ -62,7 +62,7 @@ def main():
     opts = [a for a in args_after_src if a.startswith("--")]
 
     out = os.path.abspath(pos[0]) if len(pos) > 0 else os.path.abspath("compiled_shaders")
-    tool = pos[1] if len(pos) > 1 and pos[1] not in ('.', './') else "oeshaders"
+    tool = pos[1] if len(pos) > 1 and pos[1] not in ('.', './') else os.path.join(os.path.dirname(sys.argv[0]), "oeshaders")
     metal = pos[2] if len(pos) > 2 else "2.4"
     jobs = int(pos[3]) if len(pos) > 3 else multiprocessing.cpu_count()
 
