@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-import concurrent.futures as cf, os, sys, subprocess, pathlib, multiprocessing
+import concurrent.futures as cf, fnmatch, os, sys, subprocess, pathlib, multiprocessing
+
+EXCLUDE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "excluded_presets.txt")
 
 
 def print_help():
     print(
         """
-Usage: compile_shaders.py SRC_DIR [OUT_DIR] [TOOL] [METAL] [JOBS] [--no-filter|--filter=off|--filter|--filter=on|--filter=auto] [--help|-h]
+Usage: compile_shaders.py SRC_DIR [OUT_DIR] [TOOL] [METAL] [JOBS] [--no-filter|--filter=off|--filter|--filter=on|--filter=auto] [--no-exclude] [--help|-h]
 
 Pre-compiles RetroArch slang shader presets (.slangp) into OpenEmu-compatible compiled shader bundles (.oecompiledshader) for Metal.
 
@@ -21,6 +23,7 @@ Options:
   --filter, --filter=on,
   --filter=auto               Enable family filtering (intended for mobile targets such as iOS/tvOS). Skips heavy/incompatible families:
                               motion-interpolation, stereoscopic-3d, hdr, gpu
+  --no-exclude                Compile the presets listed in excluded_presets.txt too
   --help, -h                  Show this help and exit
 
 Outputs and logs:
@@ -68,6 +71,7 @@ def main():
 
     # Parse flags (filter is OFF by default)
     filter_on = False
+    use_exclude_file = "--no-exclude" not in opts
     for a in opts:
         if a in ("--no-filter", "--filter=off"):
             filter_on = False
@@ -80,6 +84,11 @@ def main():
 
     # Families known to be heavy/incompatible for mobile targets; skipped when filter is enabled
     exclude = {"motion-interpolation","stereoscopic-3d","hdr","gpu"} if filter_on else set()
+    # Presets left out of the release on purpose: glob patterns on the path relative to SRC_DIR
+    patterns = []
+    if use_exclude_file and os.path.exists(EXCLUDE_FILE):
+        with open(EXCLUDE_FILE) as f:
+            patterns = [line.strip() for line in f if line.strip() and not line.lstrip().startswith("#")]
 
     files = []
     for root, dirs, filenames in os.walk(src):
@@ -88,9 +97,11 @@ def main():
             dirs[:] = [d for d in dirs if d not in exclude]
         for name in filenames:
             if name.endswith(".slangp"):
-                files.append(os.path.join(root, name))
+                rel = os.path.relpath(os.path.join(root, name), src)
+                if not any(fnmatch.fnmatch(rel, p) for p in patterns):
+                    files.append(os.path.join(root, name))
 
-    print(f"Source: {src}\nOutput: {out}\nTool: {tool} (Metal {metal})\nJobs: {jobs}\nFilter: {'on' if filter_on else 'off'}\n")
+    print(f"Source: {src}\nOutput: {out}\nTool: {tool} (Metal {metal})\nJobs: {jobs}\nFilter: {'on' if filter_on else 'off'}\nExcluded patterns: {len(patterns)}\n")
     tasks = [(f, src, out, tool, metal, logroot) for f in files]
 
     failed = []

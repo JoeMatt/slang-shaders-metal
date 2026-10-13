@@ -1,0 +1,13 @@
+# Presets compile_shaders.py skips (glob patterns on the .slangp path relative to slang-shaders/).
+# Pass --no-exclude to compile them anyway.
+
+# Desktop-GPU bezel suites. Every bundle embeds its own copy of large bezel textures
+# (Mega Bezel ~6 MB, koko-aio ~5 MB each), so the full sets run to several GB.
+bezel/Mega_Bezel/*
+bezel/koko-aio/*
+
+# scanline-classic ships the same 86 presets for every display target; keep only 1080p SDR.
+# The 4K and HDR variants also hang the GPU intermittently.
+bezel/scanline-classic/presets/fhd-hdr/*
+bezel/scanline-classic/presets/steamdeck-*/*
+bezel/scanline-classic/presets/uhd-4k-*/*

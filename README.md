@@ -31,6 +31,8 @@ python3 compile_shaders.py SRC_DIR [OUT_DIR] [TOOL] [METAL] [JOBS] [--no-filter|
 - `--filter`, `--filter=on`, `--filter=auto`
   - Enables family filtering intended for mobile targets (iOS/tvOS). Skips heavy/incompatible families:
     - `motion-interpolation`, `stereoscopic-3d`, `hdr`, `gpu`
+- `--no-exclude`
+  - Also compiles the presets listed in `excluded_presets.txt` (see below)
 - `--help`, `-h`
   - Prints help and exits
 
@@ -63,6 +65,7 @@ python3 compile_shaders.py ./slang-shaders ./compiled_shaders ./oeshaders 2.4 8 
 
 ## Notes
 
-- The included `OpenEmuShaders.framework` and `oeshaders` binary are provided for convenience. You can build them from the upstream project if preferred.
+- The included `OpenEmuShaders.framework` and `oeshaders` binary are built from the `slang-compat` branch of [Provenance-Emu/OpenEmu-Shaders](https://github.com/Provenance-Emu/OpenEmu-Shaders/tree/slang-compat) (`xcodebuild -scheme oeshaders -configuration Release ARCHS="arm64 x86_64"`). Upstream OpenEmu-Shaders rejects most current libretro presets (`#reference`, hyphenated parameter names, blank parameter descriptions, Latin-1 sources).
+- `excluded_presets.txt` lists presets left out of the release on purpose (glob patterns on the path inside `slang-shaders/`), such as the multi-GB desktop bezel suites.
 - By default, all shader families are compiled. For mobile (iOS/tvOS) targets, enable filtering with `--filter` to skip heavy/incompatible families.
 - On failures, logs in `compile_logs` are the first place to inspect.
