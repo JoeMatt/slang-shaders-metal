@@ -7,5 +7,4 @@ framework module OpenEmuShaders {
 
 module OpenEmuShaders.Swift {
   header "OpenEmuShaders-Swift.h"
-  requires objc
 }

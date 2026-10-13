@@ -1,0 +1,559 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.3.3 effective-5.10 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)
+// swift-module-flags: -target x86_64-apple-macos12.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name OpenEmuShaders
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.3.3
+import CGLSLang
+import CSPIRVCross
+import CSPIRVTools
+import CommonCrypto
+import CoreGraphics
+import CoreImage
+import Foundation
+import Metal
+import MetalKit
+@_exported import OpenEmuShaders
+import QuartzCore
+import Swift
+import ZIPFoundation
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+import os.log
+import os
+import simd
+@_hasMissingDesignatedInitializers public class PixelBuffer {
+  final public let format: OpenEmuShaders.OEMTLPixelFormat
+  final public let sourceSize: CoreFoundation.CGSize
+  public var outputRect: CoreFoundation.CGRect {
+    get
+    set
+  }
+  final public let contents: Swift.UnsafeMutableRawPointer
+  @objc deinit
+  public func prepare(withCommandBuffer commandBuffer: any Metal.MTLCommandBuffer, texture: any Metal.MTLTexture)
+  public static func makeBuffer(withDevice device: any Metal.MTLDevice, converter: OpenEmuShaders.MTLPixelConverter, format: OpenEmuShaders.OEMTLPixelFormat, height: Swift.Int, bytesPerRow: Swift.Int) -> OpenEmuShaders.PixelBuffer
+  public static func makeBuffer(withDevice device: any Metal.MTLDevice, converter: OpenEmuShaders.MTLPixelConverter, format: OpenEmuShaders.OEMTLPixelFormat, height: Swift.Int, bytesPerRow: Swift.Int, bytes: Swift.UnsafeMutableRawPointer?) -> OpenEmuShaders.PixelBuffer
+}
+public enum OEMTLPixelFormat : Swift.Int, Swift.CaseIterable {
+  case bgra4Unorm
+  case b5g6r5Unorm
+  case r5g5b5a1Unorm
+  case rgba8Unorm
+  case abgr8Unorm
+  case bgra8Unorm
+  case bgrx8Unorm
+  public init?(rawValue: Swift.Int)
+  public typealias AllCases = [OpenEmuShaders.OEMTLPixelFormat]
+  public typealias RawValue = Swift.Int
+  nonisolated public static var allCases: [OpenEmuShaders.OEMTLPixelFormat] {
+    get
+  }
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public enum Compiled {
+  public struct Shader : Swift.Codable {
+    public let passes: [OpenEmuShaders.Compiled.ShaderPass]
+    public let parameters: [OpenEmuShaders.Compiled.Parameter]
+    public let luts: [OpenEmuShaders.Compiled.LUT]
+    public let historyCount: Swift.Int
+    public let languageVersion: OpenEmuShaders.Compiled.LanguageVersion
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct LUT : Swift.Codable {
+    public let url: Foundation.URL
+    public let name: Swift.String
+    public let filter: OpenEmuShaders.Compiled.ShaderPassFilter
+    public let wrapMode: OpenEmuShaders.Compiled.ShaderPassWrap
+    public let isMipmap: Swift.Bool
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct Parameter : Swift.Codable {
+    public let index: Swift.Int
+    public let name: Swift.String
+    public let desc: Swift.String
+    public let initial: Foundation.Decimal
+    public let minimum: Foundation.Decimal
+    public let maximum: Foundation.Decimal
+    public let step: Foundation.Decimal
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct ShaderPass : Swift.Codable {
+    public let index: Swift.Int
+    public let vertexSource: Swift.String
+    public let fragmentSource: Swift.String
+    public let frameCountMod: Swift.UInt
+    public let scaleX: OpenEmuShaders.Compiled.ShaderPassScale?
+    public let scaleY: OpenEmuShaders.Compiled.ShaderPassScale?
+    public let filter: OpenEmuShaders.Compiled.ShaderPassFilter
+    public let wrapMode: OpenEmuShaders.Compiled.ShaderPassWrap
+    public let format: OpenEmuShaders.Compiled.PixelFormat
+    public var isFeedback: Swift.Bool {
+      get
+    }
+    public let buffers: [OpenEmuShaders.Compiled.BufferDescriptor]
+    public let textures: [OpenEmuShaders.Compiled.TextureDescriptor]
+    public let alias: Swift.String?
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct BufferDescriptor : Swift.Codable {
+    public let bindingVert: Swift.Int?
+    public let bindingFrag: Swift.Int?
+    public let size: Swift.Int
+    public let uniforms: [OpenEmuShaders.Compiled.BufferUniformDescriptor]
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct BufferUniformDescriptor : Swift.Codable {
+    public let semantic: OpenEmuShaders.Compiled.ShaderBufferSemantic
+    public let index: Swift.Int?
+    public let name: Swift.String
+    public let size: Swift.Int
+    public let offset: Swift.Int
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public struct TextureDescriptor : Swift.Codable {
+    public let name: Swift.String
+    public let semantic: OpenEmuShaders.Compiled.ShaderTextureSemantic
+    public let binding: Swift.Int
+    public let wrap: OpenEmuShaders.Compiled.ShaderPassWrap
+    public let filter: OpenEmuShaders.Compiled.ShaderPassFilter
+    public let index: Swift.Int
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public enum LanguageVersion : Swift.String, Swift.CaseIterable, Swift.Codable {
+    case version2_4, version2_3, version2_2, version2_1
+    public init?(rawValue: Swift.String)
+    public typealias AllCases = [OpenEmuShaders.Compiled.LanguageVersion]
+    public typealias RawValue = Swift.String
+    nonisolated public static var allCases: [OpenEmuShaders.Compiled.LanguageVersion] {
+      get
+    }
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum ShaderPassScale : Swift.Equatable, Swift.Codable {
+    case source(scale: CoreFoundation.CGFloat)
+    case absolute(size: Swift.Int)
+    case viewport(scale: CoreFoundation.CGFloat)
+    public static func == (a: OpenEmuShaders.Compiled.ShaderPassScale, b: OpenEmuShaders.Compiled.ShaderPassScale) -> Swift.Bool
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public enum ShaderPassFilter : Swift.String, Swift.CaseIterable, Swift.Codable {
+    case unspecified, linear, nearest
+    public init?(rawValue: Swift.String)
+    public typealias AllCases = [OpenEmuShaders.Compiled.ShaderPassFilter]
+    public typealias RawValue = Swift.String
+    nonisolated public static var allCases: [OpenEmuShaders.Compiled.ShaderPassFilter] {
+      get
+    }
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum ShaderPassWrap : Swift.String, Swift.CaseIterable, Swift.Codable {
+    case border, edge, `repeat`, mirroredRepeat
+    public init?(rawValue: Swift.String)
+    public typealias AllCases = [OpenEmuShaders.Compiled.ShaderPassWrap]
+    public typealias RawValue = Swift.String
+    nonisolated public static var allCases: [OpenEmuShaders.Compiled.ShaderPassWrap] {
+      get
+    }
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum ShaderTextureSemantic : Swift.String, Swift.CaseIterable, Swift.Codable, Swift.CustomStringConvertible {
+    case original
+    case source
+    case originalHistory
+    case passOutput
+    case passFeedback
+    case user
+    public var description: Swift.String {
+      get
+    }
+    public init?(rawValue: Swift.String)
+    public typealias AllCases = [OpenEmuShaders.Compiled.ShaderTextureSemantic]
+    public typealias RawValue = Swift.String
+    nonisolated public static var allCases: [OpenEmuShaders.Compiled.ShaderTextureSemantic] {
+      get
+    }
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum ShaderBufferSemantic : Swift.String, Swift.CaseIterable, Swift.Codable, Swift.CustomStringConvertible {
+    case mvp
+    case outputSize
+    case finalViewportSize
+    case frameCount
+    case frameDirection
+    case floatParameter
+    case originalSize
+    case sourceSize
+    case originalHistorySize
+    case passOutputSize
+    case passFeedbackSize
+    case userSize
+    public var description: Swift.String {
+      get
+    }
+    public init?(rawValue: Swift.String)
+    public typealias AllCases = [OpenEmuShaders.Compiled.ShaderBufferSemantic]
+    public typealias RawValue = Swift.String
+    nonisolated public static var allCases: [OpenEmuShaders.Compiled.ShaderBufferSemantic] {
+      get
+    }
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum PixelFormat : Swift.String, Swift.Codable {
+    case r8Unorm
+    case r8Uint
+    case r8Sint
+    case rg8Unorm
+    case rg8Uint
+    case rg8Sint
+    case rgba8Unorm
+    case rgba8Uint
+    case rgba8Sint
+    case rgba8Unorm_srgb
+    case rgb10a2Unorm
+    case rgb10a2Uint
+    case r16Uint
+    case r16Sint
+    case r16Float
+    case rg16Uint
+    case rg16Sint
+    case rg16Float
+    case rgba16Uint
+    case rgba16Sint
+    case rgba16Float
+    case r32Uint
+    case r32Sint
+    case r32Float
+    case rg32Uint
+    case rg32Sint
+    case rg32Float
+    case rgba32Uint
+    case rgba32Sint
+    case rgba32Float
+    case bgra8Unorm_srgb
+    case bgra8Unorm
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+}
+extension Foundation.Scanner {
+  public func scanQuotedString() -> Swift.String?
+}
+extension OpenEmuShaders.FilterChain {
+  final public func setShader(fromURL url: Foundation.URL, options shaderOptions: OpenEmuShaders.ShaderCompilerOptions) throws
+}
+@_hasMissingDesignatedInitializers public class ShaderModel {
+  public var passes: [OpenEmuShaders.ShaderPassModel]
+  public var textures: [OpenEmuShaders.ShaderTextureModel]?
+  public var parameters: [OpenEmuShaders.ShaderParameterModel]?
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class ShaderPassModel {
+  public enum ScaleAxis {
+    case x, y
+    public static func == (a: OpenEmuShaders.ShaderPassModel.ScaleAxis, b: OpenEmuShaders.ShaderPassModel.ScaleAxis) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
+  public var pass: Swift.Int
+  public var shader: Swift.String
+  public var wrapMode: Swift.String?
+  public var alias: Swift.String?
+  public var scaleType: Swift.String?
+  public var scaleTypeX: Swift.String?
+  public var scaleTypeY: Swift.String?
+  public var filterLinear: Swift.Bool?
+  public var srgbFramebuffer: Swift.Bool?
+  public var floatFramebuffer: Swift.Bool?
+  public var mipmapInput: Swift.Bool?
+  public var frameCountMod: Swift.UInt?
+  public var scale: Swift.Double?
+  public var scaleX: Swift.Double?
+  public var scaleY: Swift.Double?
+  public func scaleType(for a: OpenEmuShaders.ShaderPassModel.ScaleAxis) -> Swift.String?
+  public func scale(for a: OpenEmuShaders.ShaderPassModel.ScaleAxis) -> Swift.Double?
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class ShaderTextureModel {
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class ShaderParameterModel {
+  @objc deinit
+}
+final public class SlangShader {
+  public enum Errors : Foundation.LocalizedError {
+    case parameterConflict(Swift.String)
+    case circularReference(Swift.String)
+    case referenceNotFound(Swift.String)
+    public var errorDescription: Swift.String? {
+      get
+    }
+  }
+  final public let url: Foundation.URL
+  final public let passes: [OpenEmuShaders.ShaderPass]
+  final public let parameters: [OpenEmuShaders.ShaderParameter]
+  final public let luts: [OpenEmuShaders.ShaderLUT]
+  public init(fromURL url: Foundation.URL) throws
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers final public class ShaderPass {
+  final public let url: Foundation.URL
+  final public let index: Swift.Int
+  final public let frameCountMod: Swift.UInt
+  final public let scaleX: OpenEmuShaders.Compiled.ShaderPassScale?
+  final public let scaleY: OpenEmuShaders.Compiled.ShaderPassScale?
+  final public let filter: OpenEmuShaders.Compiled.ShaderPassFilter
+  final public let wrapMode: OpenEmuShaders.Compiled.ShaderPassWrap
+  final public let isFloat: Swift.Bool
+  final public let issRGB: Swift.Bool
+  final public let isMipmap: Swift.Bool
+  final public let alias: Swift.String?
+  final public var format: OpenEmuShaders.Compiled.PixelFormat {
+    get
+  }
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers final public class ShaderLUT {
+  final public let url: Foundation.URL
+  final public let name: Swift.String
+  final public let filter: OpenEmuShaders.Compiled.ShaderPassFilter
+  final public let wrapMode: OpenEmuShaders.Compiled.ShaderPassWrap
+  final public let isMipmap: Swift.Bool
+  @objc deinit
+}
+extension OpenEmuShaders.ShaderPassCompiler {
+  public func compile(options: OpenEmuShaders.ShaderCompilerOptions) throws -> OpenEmuShaders.Compiled.Shader
+}
+public class ShaderPassCompiler {
+  public enum ShaderError : Swift.Error {
+    case buildFailed
+    case processFailed
+    public static func == (a: OpenEmuShaders.ShaderPassCompiler.ShaderError, b: OpenEmuShaders.ShaderPassCompiler.ShaderError) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
+  public init(shaderModel shader: OpenEmuShaders.SlangShader)
+  @objc deinit
+}
+public class Screenshot {
+  public init(device: any Metal.MTLDevice)
+  public func applyFilterChain(_ f: OpenEmuShaders.FilterChain, to sourceTexture: any Metal.MTLTexture, flip: Swift.Bool = false, commandBuffer: (any Metal.MTLCommandBuffer)? = nil) -> CoreGraphics.CGImage?
+  public func ciImagefromTexture(tex: any Metal.MTLTexture, crop: CoreFoundation.CGRect = .zero, flip: Swift.Bool = true) -> CoreImage.CIImage?
+  public func cgImageFromCIImage(_ img: CoreImage.CIImage) -> CoreGraphics.CGImage?
+  @objc deinit
+}
+public protocol CompiledShaderContainer {
+  var shader: OpenEmuShaders.Compiled.Shader { get }
+  func getLUTByName(_ name: Swift.String) throws -> Foundation.Data
+}
+public class ShaderParameter : Swift.CustomStringConvertible {
+  public var name: Swift.String
+  public var desc: Swift.String
+  public var initial: Foundation.Decimal
+  public var minimum: Foundation.Decimal
+  public var maximum: Foundation.Decimal
+  public var step: Foundation.Decimal
+  public init(name: Swift.String, desc: Swift.String)
+  public var description: Swift.String {
+    get
+  }
+  @objc deinit
+}
+extension OpenEmuShaders.ShaderParameter : Swift.Equatable {
+  public static func == (lhs: OpenEmuShaders.ShaderParameter, rhs: OpenEmuShaders.ShaderParameter) -> Swift.Bool
+}
+public class ShaderCompilerOptions {
+  public var languageVersion: Metal.MTLLanguageVersion
+  public var isCacheDisabled: Swift.Bool
+  public var cacheDir: Foundation.URL?
+  public init()
+  @objc deinit
+}
+public enum FileCompiledShaderContainer {
+  final public class Decoder : OpenEmuShaders.CompiledShaderContainer {
+    final public let shader: OpenEmuShaders.Compiled.Shader
+    public init(shader: OpenEmuShaders.Compiled.Shader)
+    final public func getLUTByName(_ name: Swift.String) throws -> Foundation.Data
+    @objc deinit
+  }
+}
+public enum ZipCompiledShaderContainer {
+  public static func encode(shader: OpenEmuShaders.Compiled.Shader, to path: Foundation.URL) throws
+  @_hasMissingDesignatedInitializers final public class Decoder : OpenEmuShaders.CompiledShaderContainer {
+    final public let shader: OpenEmuShaders.Compiled.Shader
+    convenience public init(url: Foundation.URL) throws
+    convenience public init(data: Foundation.Data) throws
+    final public func getLUTByName(_ name: Swift.String) throws -> Foundation.Data
+    @objc deinit
+  }
+}
+@_hasMissingDesignatedInitializers public class ShaderConfigSerialization {
+  public enum Errors : Foundation.LocalizedError {
+    case missingKey(Swift.String)
+    case zeroShaders
+    public var errorDescription: Swift.String? {
+      get
+    }
+  }
+  public class func makeShaderModel(from s: Swift.String) throws -> OpenEmuShaders.ShaderModel
+  public class func parseConfig(_ s: Swift.String) -> [Swift.String : Swift.String]
+  public class func makeShaderModel(from d: [Swift.String : Swift.String]) throws -> OpenEmuShaders.ShaderModel
+  @objc deinit
+}
+public enum ConfigKeyValue {
+  case keyval(key: Swift.String, val: Swift.String)
+  case eof
+}
+public struct ConfigScanner {
+  public init(_ text: Swift.String)
+  public mutating func scan() -> OpenEmuShaders.ConfigKeyValue
+}
+public enum SlangCompilerError : Foundation.LocalizedError, Foundation.CustomNSError {
+  case preprocess(reason: Swift.String?)
+  case parse(reason: Swift.String?)
+  case link(reason: Swift.String?)
+  public static var errorDomain: Swift.String {
+    get
+  }
+  public var errorCode: Swift.Int {
+    get
+  }
+  public var errorDescription: Swift.String? {
+    get
+  }
+  public var failureReason: Swift.String? {
+    get
+  }
+}
+public class MTLPixelConverter {
+  @usableFromInline
+  @frozen internal struct BufferUniforms {
+    internal let origin: Swift.SIMD2<Swift.UInt32>
+    internal let stride: Swift.UInt32
+  }
+  @_hasMissingDesignatedInitializers public class BufferConverter {
+    public func convert(fromBuffer src: any Metal.MTLBuffer, sourceOrigin: Metal.MTLOrigin, sourceBytesPerRow: Swift.Int, toTexture dst: any Metal.MTLTexture, commandBuffer: any Metal.MTLCommandBuffer)
+    @objc deinit
+  }
+  @_hasMissingDesignatedInitializers public class TextureConverter {
+    public func convert(texture src: any Metal.MTLTexture, out dst: any Metal.MTLTexture, commandBuffer: any Metal.MTLCommandBuffer)
+    @objc deinit
+  }
+  public init(device: any Metal.MTLDevice) throws
+  public func convert(fromBuffer src: any Metal.MTLBuffer, sourceFormat: OpenEmuShaders.OEMTLPixelFormat, sourceOrigin: Metal.MTLOrigin, sourceBytesPerRow: Swift.Int, toTexture dst: any Metal.MTLTexture, commandBuffer: any Metal.MTLCommandBuffer)
+  public func bufferConverter(withFormat sourceFormat: OpenEmuShaders.OEMTLPixelFormat) -> OpenEmuShaders.MTLPixelConverter.BufferConverter?
+  public func textureConverter(withFormat sourceFormat: OpenEmuShaders.OEMTLPixelFormat) -> OpenEmuShaders.MTLPixelConverter.TextureConverter?
+  public func convert(fromTexture src: any Metal.MTLTexture, sourceFormat: OpenEmuShaders.OEMTLPixelFormat, toTexture dst: any Metal.MTLTexture, commandBuffer: any Metal.MTLCommandBuffer)
+  @objc deinit
+}
+final public class FilterChain {
+  final public var hasShader: Swift.Bool
+  final public var sourceRect: CoreFoundation.CGRect {
+    get
+  }
+  final public var outputBounds: CoreFoundation.CGRect {
+    get
+  }
+  final public var frameDirection: Swift.Int
+  public init(device: any Metal.MTLDevice) throws
+  final public var rotation: Swift.Float {
+    get
+    set
+  }
+  final public func setDefaultFilteringLinear(_ linear: Swift.Bool)
+  final public func setSourceRect(_ rect: CoreFoundation.CGRect, aspect: CoreFoundation.CGSize)
+  final public var drawableSize: CoreFoundation.CGSize {
+    get
+    set
+  }
+  final public func render(sourceTexture: any Metal.MTLTexture, commandBuffer: any Metal.MTLCommandBuffer, renderPassDescriptor rpd: Metal.MTLRenderPassDescriptor, flipVertically: Swift.Bool = false)
+  final public func renderOffscreenPasses(sourceTexture: any Metal.MTLTexture, commandBuffer: any Metal.MTLCommandBuffer)
+  final public func renderFinalPass(withCommandEncoder rce: any Metal.MTLRenderCommandEncoder, flipVertically: Swift.Bool)
+  final public func setCompiledShader(_ container: any OpenEmuShaders.CompiledShaderContainer) throws
+  final public func setValue(_ value: CoreFoundation.CGFloat, forParameterName name: Swift.String)
+  final public func setValue(_ value: CoreFoundation.CGFloat, forParameterIndex index: Swift.Int)
+  @objc deinit
+}
+extension OpenEmuShaders.FilterChain {
+  @usableFromInline
+  @frozen internal struct Vertex {
+    internal let position: simd.simd_float4
+    internal let texCoord: simd.simd_float2
+  }
+  @usableFromInline
+  @frozen internal struct Uniforms {
+    internal var projectionMatrix: simd.simd_float4x4
+    internal var outputSize: simd.simd_float2
+    internal var time: simd.simd_float1
+  }
+}
+public enum MTLLangageVersionError : Foundation.LocalizedError {
+  case versionUnavailable
+  public var errorDescription: Swift.String? {
+    get
+  }
+  public static func == (a: OpenEmuShaders.MTLLangageVersionError, b: OpenEmuShaders.MTLLangageVersionError) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension OpenEmuShaders.OEMTLPixelFormat : Swift.Equatable {}
+extension OpenEmuShaders.OEMTLPixelFormat : Swift.Hashable {}
+extension OpenEmuShaders.OEMTLPixelFormat : Swift.RawRepresentable {}
+extension OpenEmuShaders.Compiled.LanguageVersion : Swift.Equatable {}
+extension OpenEmuShaders.Compiled.LanguageVersion : Swift.Hashable {}
+extension OpenEmuShaders.Compiled.LanguageVersion : Swift.RawRepresentable {}
+extension OpenEmuShaders.Compiled.ShaderPassFilter : Swift.Equatable {}
+extension OpenEmuShaders.Compiled.ShaderPassFilter : Swift.Hashable {}
+extension OpenEmuShaders.Compiled.ShaderPassFilter : Swift.RawRepresentable {}
+extension OpenEmuShaders.Compiled.ShaderPassWrap : Swift.Equatable {}
+extension OpenEmuShaders.Compiled.ShaderPassWrap : Swift.Hashable {}
+extension OpenEmuShaders.Compiled.ShaderPassWrap : Swift.RawRepresentable {}
+extension OpenEmuShaders.Compiled.ShaderTextureSemantic : Swift.Equatable {}
+extension OpenEmuShaders.Compiled.ShaderTextureSemantic : Swift.Hashable {}
+extension OpenEmuShaders.Compiled.ShaderTextureSemantic : Swift.RawRepresentable {}
+extension OpenEmuShaders.Compiled.ShaderBufferSemantic : Swift.Equatable {}
+extension OpenEmuShaders.Compiled.ShaderBufferSemantic : Swift.Hashable {}
+extension OpenEmuShaders.Compiled.ShaderBufferSemantic : Swift.RawRepresentable {}
+extension OpenEmuShaders.Compiled.PixelFormat : Swift.Equatable {}
+extension OpenEmuShaders.Compiled.PixelFormat : Swift.Hashable {}
+extension OpenEmuShaders.Compiled.PixelFormat : Swift.RawRepresentable {}
+extension OpenEmuShaders.ShaderPassModel.ScaleAxis : Swift.Equatable {}
+extension OpenEmuShaders.ShaderPassModel.ScaleAxis : Swift.Hashable {}
+extension OpenEmuShaders.ShaderPassCompiler.ShaderError : Swift.Equatable {}
+extension OpenEmuShaders.ShaderPassCompiler.ShaderError : Swift.Hashable {}
+extension OpenEmuShaders.MTLPixelConverter.BufferUniforms : Swift.Sendable {}
+extension OpenEmuShaders.MTLPixelConverter.BufferUniforms : Swift.BitwiseCopyable {}
+extension OpenEmuShaders.FilterChain.Vertex : Swift.Sendable {}
+extension OpenEmuShaders.FilterChain.Vertex : Swift.BitwiseCopyable {}
+extension OpenEmuShaders.FilterChain.Uniforms : Swift.Sendable {}
+extension OpenEmuShaders.FilterChain.Uniforms : Swift.BitwiseCopyable {}
+extension OpenEmuShaders.MTLLangageVersionError : Swift.Equatable {}
+extension OpenEmuShaders.MTLLangageVersionError : Swift.Hashable {}
