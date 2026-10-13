@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -26,6 +28,14 @@ jobs:
       - name: Compile shaders
         run: |
           python3 compile_shaders.py ./slang-shaders ./compiled_shaders ./oeshaders
+
+      # compile_shaders.py exits 0 even when every preset fails (e.g. an empty
+      # submodule, or oeshaders failing to load OpenEmuShaders.framework).
+      - name: Verify compiled output
+        run: |
+          count=$(find compiled_shaders -name '*.oecompiledshader' | wc -l)
+          echo "Compiled $count presets"
+          test "$count" -gt 0
 
       - name: Generate release notes
         run: |
