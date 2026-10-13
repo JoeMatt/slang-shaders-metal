@@ -11,3 +11,6 @@ bezel/koko-aio/*
 bezel/scanline-classic/presets/fhd-hdr/*
 bezel/scanline-classic/presets/steamdeck-*/*
 bezel/scanline-classic/presets/uhd-4k-*/*
+
+# HDR presets; Provenance renders SDR only. Same family the mobile --filter skips.
+hdr/*
